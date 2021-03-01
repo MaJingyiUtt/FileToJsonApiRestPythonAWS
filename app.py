@@ -35,8 +35,22 @@ def generate_metadata(filepath):
     metadata = {}
     metadata["mime"] = magic.from_file(filepath, mime=True)
     metadata["size"] = os.stat(filepath).st_size
+    if metadata["mime"].split("/")[0]=="image":
+        generate_image_metadata(filepath,metadata)
     return metadata
 
+def generate_image_metadata(filepath,metadata):
+    opened_image = Image.open(filepath)
+    exifdata = opened_image.getexif()
+    # iterating over all EXIF data fields
+    for tag_id in exifdata:
+        # get the tag name, instead of human unreadable tag id
+        tag = TAGS.get(tag_id, tag_id)
+        data = exifdata.get(tag_id)
+        # decode bytes
+        if isinstance(data, bytes):
+            data = data.decode()
+        metadata[tag] = data
 
 def generate_filedata(filepath):
     filedata = "aaabbbccc"
