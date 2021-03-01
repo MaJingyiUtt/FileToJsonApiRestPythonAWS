@@ -19,6 +19,8 @@ app.config["TMP_FOLDER"] = TMP_FOLDER
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
+    """upload file and return content and metadata"""
+    data = {}
     if request.files:
         file = request.files["file"]
         if file.filename != "" and allowed_file(file.filename):
@@ -30,14 +32,15 @@ def upload_file():
             # remove the tmp file created
             if os.path.exists(filepath):
                 os.remove(filepath)
-            return jsonify(data)
         else:
-            return const.ERROR_MESSAGE_EXTENSION_NOT_ALLOWED
+            data = {"error": const.ERROR_MESSAGE_EXTENSION_NOT_ALLOWED}
     else:
-        return const.ERROR_MESSAGE_NO_FILE
+        data = {"error": const.ERROR_MESSAGE_NO_FILE}
+    return jsonify(data)
 
 
 def generate_metadata(filepath):
+    """generate metadata according to file type"""
     metadata = {}
     metadata["mime"] = magic.from_file(filepath, mime=True)
     metadata["size"] = os.stat(filepath).st_size
@@ -49,6 +52,7 @@ def generate_metadata(filepath):
 
 
 def generate_image_metadata(filepath, metadata):
+    """generate image metadata using exif"""
     opened_image = Image.open(filepath)
     exifdata = opened_image.getexif()
     # iterating over all EXIF data fields
@@ -63,32 +67,33 @@ def generate_image_metadata(filepath, metadata):
 
 
 def generate_pdf_metadata(filepath, metadata):
-    # creating a pdf file object
-    pdfFileObj = open(filepath, "rb")
-    pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
-    information = pdfReader.getDocumentInfo()
+    """get pdf metadata using PyPDF2"""
+    pdf_file_obj = open(filepath, "rb")
+    pdf_reader = PyPDF2.PdfFileReader(pdf_file_obj)
+    information = pdf_reader.getDocumentInfo()
     print(information)
     for info in information:
         metadata[info.split("/")[1]] = information[info]
-    pdfFileObj.close()
+    pdf_file_obj.close()
 
 
 def generate_filedata(filepath):
-    type = magic.from_file(filepath, mime=True)
+    """get file content"""
+    filetype = magic.from_file(filepath, mime=True)
     filedata = ""
-    if type == "application/csv" or type == "text/plain":
-        f = open(filepath, "r")
-        filedata = f.read()
-    elif type == "application/pdf":
+    if filetype in ("application/csv", "text/plain"):
+        file = open(filepath, "r")
+        filedata = file.read()
+    elif filetype == "application/pdf":
         # creating a pdf file object
-        pdfFileObj = open(filepath, "rb")
+        pdf_file_obj = open(filepath, "rb")
         # creating a pdf reader object
-        pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
-        for page in pdfReader.pages:
+        pdf_reader = PyPDF2.PdfFileReader(pdf_file_obj)
+        for page in pdf_reader.pages:
             filedata += page.extractText()
         # closing the pdf file object
-        pdfFileObj.close()
-    elif type.split("/")[0] == "image":
+        pdf_file_obj.close()
+    elif filetype.split("/")[0] == "image":
         # encode image to base64
         image = open(filepath, "rb")
         encoded_string = base64.b64encode(image.read())

@@ -1,8 +1,4 @@
-"""
-This file contains all the constants, to protext them from changing value. 
-
-"""
-
+"""This file contains all the constants, to protext them from changing value."""
 
 class Const(object):
     class ConstError(TypeError):
