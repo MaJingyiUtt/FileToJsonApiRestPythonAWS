@@ -24,14 +24,9 @@ app.config["TMP_FOLDER"] = TMP_FOLDER
 def hello():
     return "hello, please use /upload"
 
-@app.route("/s3")
-def s3():
-    client = boto3.client('sts')
-    client_identity = client.get_caller_identity()
-    return client_identity
 
 @app.route("/upload", methods=["POST"])
-def upload_file():
+def upload():
     """upload file and return content and metadata"""
     data = {}
     if request.files:
@@ -39,7 +34,7 @@ def upload_file():
         if file.filename != "" and allowed_file(file.filename):
             filepath = os.path.join(app.config["TMP_FOLDER"], file.filename)
             file.save(filepath)
-            save_file_to_s3(filepath,file.filename)
+            # save_file_to_s3(filepath, file.filename)
             metadata = generate_metadata(filepath)
             filedata = generate_filedata(filepath)
             data = {"metadata": metadata, "filedata": filedata}
@@ -53,9 +48,9 @@ def upload_file():
     return jsonify(data)
 
 
-def save_file_to_s3(filepath,filename):
-    session = boto3.Session(profile_name='csloginstudent')
-    s3= session.client('s3')
+def save_file_to_s3(filepath, filename):
+    session = boto3.Session(profile_name="csloginstudent")
+    s3 = session.client("s3")
     s3.upload_file(filepath, const.S3_BUCKET_NAME, filename)
 
 
@@ -68,9 +63,25 @@ def generate_metadata(filepath):
     metadata["created"] = time.ctime(os.path.getctime(filepath))
     if metadata["mime"].split("/")[0] == "image":
         generate_image_metadata(filepath, metadata)
+        generate_rekognition(filepath, metadata)
     if metadata["mime"] == "application/pdf":
         generate_pdf_metadata(filepath, metadata)
     return metadata
+
+
+def generate_rekognition(filepath, metadata):
+    session = boto3.Session(profile_name="csloginstudent")
+    rekognition = session.client("rekognition")
+    with open(filepath, "rb") as image:
+        response = rekognition.detect_labels(
+            Image={"Bytes": image.read()},
+            MaxLabels=10,
+            MinConfidence=80,
+        )
+    metadata["rekognition"] = {}
+    for predict in response["Labels"]:
+        conf=str(round(predict["Confidence"],1))+"%"
+        metadata["rekognition"][predict["Name"]] = conf
 
 
 def generate_image_metadata(filepath, metadata):
