@@ -2,6 +2,7 @@
 
 import base64
 import os
+import time
 
 import magic
 import PyPDF2
@@ -20,6 +21,7 @@ app.config["TMP_FOLDER"] = TMP_FOLDER
 @app.route("/")
 def hello():
     return "hello, please use /upload"
+
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
@@ -48,6 +50,8 @@ def generate_metadata(filepath):
     metadata = {}
     metadata["mime"] = magic.from_file(filepath, mime=True)
     metadata["size"] = os.stat(filepath).st_size
+    metadata["lastmodified"] = time.ctime(os.path.getmtime(filepath))
+    metadata["created"] = time.ctime(os.path.getctime(filepath))
     if metadata["mime"].split("/")[0] == "image":
         generate_image_metadata(filepath, metadata)
     if metadata["mime"] == "application/pdf":
