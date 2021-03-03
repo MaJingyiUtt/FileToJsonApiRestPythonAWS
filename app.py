@@ -12,6 +12,8 @@ from PIL.ExifTags import TAGS
 
 from constants import const
 
+import boto3
+
 app = Flask(__name__)
 ALLOWED_EXTENSIONS = {"txt", "csv", "pdf", "jpg", "png", "gif"}
 TMP_FOLDER = "./tmp"
@@ -22,6 +24,11 @@ app.config["TMP_FOLDER"] = TMP_FOLDER
 def hello():
     return "hello, please use /upload"
 
+@app.route("/s3")
+def s3():
+    client = boto3.client('sts')
+    client_identity = client.get_caller_identity()
+    return client_identity
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
@@ -32,6 +39,7 @@ def upload_file():
         if file.filename != "" and allowed_file(file.filename):
             filepath = os.path.join(app.config["TMP_FOLDER"], file.filename)
             file.save(filepath)
+            save_file_to_s3(filepath,file.filename)
             metadata = generate_metadata(filepath)
             filedata = generate_filedata(filepath)
             data = {"metadata": metadata, "filedata": filedata}
@@ -43,6 +51,12 @@ def upload_file():
     else:
         data = {"error": const.ERROR_MESSAGE_NO_FILE}
     return jsonify(data)
+
+
+def save_file_to_s3(filepath,filename):
+    session = boto3.Session(profile_name='csloginstudent')
+    s3= session.client('s3')
+    s3.upload_file(filepath, const.S3_BUCKET_NAME, filename)
 
 
 def generate_metadata(filepath):
