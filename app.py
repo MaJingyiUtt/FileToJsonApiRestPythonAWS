@@ -34,7 +34,7 @@ def upload():
         if file.filename != "" and allowed_file(file.filename):
             filepath = os.path.join(app.config["TMP_FOLDER"], file.filename)
             file.save(filepath)
-            # save_file_to_s3(filepath, file.filename)
+            save_file_to_s3(filepath, file.filename)
             metadata = generate_metadata(filepath)
             filedata = generate_filedata(filepath)
             data = {"metadata": metadata, "filedata": filedata}
