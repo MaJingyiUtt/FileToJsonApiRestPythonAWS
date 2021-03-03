@@ -17,6 +17,10 @@ TMP_FOLDER = "./tmp"
 app.config["TMP_FOLDER"] = TMP_FOLDER
 
 
+@app.route("/")
+def upload_file():
+    return "hello world"
+
 @app.route("/upload", methods=["POST"])
 def upload_file():
     """upload file and return content and metadata"""
