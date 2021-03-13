@@ -4,7 +4,7 @@ RUN apt-get update -y
 RUN apt-get install python3-pip -y
 RUN apt-get install gunicorn3 -y
 
-COPY requirements.txt requirements.txt
+COPY flaskapp/requirements.txt requirements.txt
 COPY flaskapp /opt/
 
 RUN mkdir ~/.aws
