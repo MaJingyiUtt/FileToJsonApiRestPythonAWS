@@ -8,7 +8,7 @@ COPY flaskapp/requirements.txt requirements.txt
 COPY flaskapp /opt/
 
 RUN mkdir ~/.aws
-COPY ../../credentials ~/.aws/credentials
+COPY credentials ~/.aws/credentials
 
 RUN pip3 install -r requirements.txt
 WORKDIR /opt/
