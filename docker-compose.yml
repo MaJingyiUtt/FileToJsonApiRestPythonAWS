@@ -6,3 +6,7 @@ services:
     ports: 
       - "8000:8000"
     network_mode: host
+    environment:
+      - AWS_SHARED_CREDENTIALS_FILE=/aws/credentials
+      - AWS_CONFIG_FILE=/aws/credentials
+      - AWS_PROFILE=csloginstudent
