@@ -4,9 +4,8 @@ services:
   flaskapp:
     build: ./flaskapp-docker
     container_name: flaskapp
-    # ports: 
-    #   - "8000:8000"
-    # network_mode: host
+    ports: 
+       - "8000-8005:8000"
     environment:
       - AWS_SHARED_CREDENTIALS_FILE=/aws/credentials
       - AWS_CONFIG_FILE=/aws/credentials
@@ -20,9 +19,3 @@ services:
     ports: 
       - "80:80"
     restart: always
-    network_mode: host
-  
-networks: 
-  default:
-    driver: bridge
-  
