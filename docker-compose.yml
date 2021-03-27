@@ -5,7 +5,7 @@ services:
     build: ./flaskapp-docker
     container_name: flaskapp
     ports: 
-       - "8000-8005:8000"
+       - "5001-5006:5000"
     environment:
       - AWS_SHARED_CREDENTIALS_FILE=/aws/credentials
       - AWS_CONFIG_FILE=/aws/credentials
