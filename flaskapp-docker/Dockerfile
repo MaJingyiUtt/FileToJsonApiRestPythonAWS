@@ -12,4 +12,4 @@ ADD credentials /aws/
 RUN pip3 install -r requirements.txt
 WORKDIR /opt/
 
-CMD ["gunicorn3","-b","0.0.0.0:5000","app:app","--workers=5","--graceful-timeout=300"]
+CMD ["gunicorn3","-b","0.0.0.0:5000","app:app","--graceful-timeout=300"]
