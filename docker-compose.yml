@@ -3,7 +3,6 @@ version: '3'
 services: 
   flaskapp:
     build: ./flaskapp-docker
-    container_name: flaskapp
     ports: 
        - "5001-5006:5000"
     environment:
