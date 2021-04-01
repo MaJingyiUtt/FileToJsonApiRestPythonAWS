@@ -11,10 +11,13 @@ services:
       - AWS_PROFILE=csloginstudent
   
   nginx:
-    build: ./nginx
+    image: nginx:latest
     container_name: nginx
     environment: 
       - SERVER_NAME=54.242.214.218
     ports: 
       - "80:80"
-    restart: always
+    restart: unless-stopped
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd
