@@ -1,0 +1,56 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "description": "This is an API which returns file data in json when a file is uploaded. This is a school project of MS SIO of CentraleSupélec. ",
+      "version": "1.0.0",
+      "title": "Fil Rouge Jingyi MA",
+      "contact": {
+          "email": "jingyi.ma@student-cs.fr"
+      },
+      "license": {
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT"
+      }
+    },
+    "servers": [
+        {
+          "url": "/"
+        }
+      ],
+      "tags": [
+        {
+            "name": "File to Json",
+            "description": "Returns file data in json when a file is uploaded"
+        }
+      ],
+      
+      "paths": {
+
+        "/upload": {
+          "consumes":"multipart/form-data",
+          "parameters": [
+            {
+              "name": "file",
+              "in": "formData",
+              "required": true,
+              "description": "File you want to upload, allowed extensions : txt, csv, pdf, jpg, png, gif",
+              "type": "file"
+            }
+          ],
+          "post": {
+            "tags": [
+              "File to Json"
+            ],
+            "summary": "upload a file and returns file data in json",
+            "responses": {
+              "200": {
+                "description": "OK"
+              },
+              "405": {
+                "description": "Invalid input"
+              }
+            }
+          }
+        }
+    }
+  }

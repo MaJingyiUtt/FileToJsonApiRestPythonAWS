@@ -3,6 +3,7 @@
 import base64
 import os
 import time
+from flask.helpers import send_from_directory
 
 import magic
 import PyPDF2
@@ -11,6 +12,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 
 from constants import const
+from flask_swagger_ui import get_swaggerui_blueprint
 
 import boto3
 
@@ -19,10 +21,16 @@ ALLOWED_EXTENSIONS = {"txt", "csv", "pdf", "jpg", "png", "gif"}
 TMP_FOLDER = "./tmp"
 app.config["TMP_FOLDER"] = TMP_FOLDER
 
+@app.route("/static/<path:path>")
+def send_static(path):
+    return send_from_directory("static", path)
 
-@app.route("/")
-def hello():
-    return "hello, please use /upload"
+SWAGGER_URL = "/swagger"
+API_URL = "/static/swagger.json"
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL, API_URL, config={"app_name": "fil-rouge-jma"}
+)
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 
 @app.route("/upload", methods=["POST"])
@@ -80,7 +88,7 @@ def generate_rekognition(filepath, metadata):
         )
     metadata["rekognition"] = {}
     for predict in response["Labels"]:
-        conf=str(round(predict["Confidence"],1))+"%"
+        conf = str(round(predict["Confidence"], 1)) + "%"
         metadata["rekognition"][predict["Name"]] = conf
 
 
