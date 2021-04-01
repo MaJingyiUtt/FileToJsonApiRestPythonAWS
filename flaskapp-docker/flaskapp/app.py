@@ -3,27 +3,29 @@
 import base64
 import os
 import time
-from flask.helpers import send_from_directory
 
+import boto3
 import magic
 import PyPDF2
 from flask import Flask, jsonify, request
+from flask.helpers import send_from_directory
+from flask_swagger_ui import get_swaggerui_blueprint
 from PIL import Image
 from PIL.ExifTags import TAGS
 
 from constants import const
-from flask_swagger_ui import get_swaggerui_blueprint
-
-import boto3
 
 app = Flask(__name__)
 ALLOWED_EXTENSIONS = {"txt", "csv", "pdf", "jpg", "png", "gif"}
 TMP_FOLDER = "./tmp"
 app.config["TMP_FOLDER"] = TMP_FOLDER
 
+
 @app.route("/static/<path:path>")
 def send_static(path):
+    """route for swagger"""
     return send_from_directory("static", path)
+
 
 SWAGGER_URL = "/swagger"
 API_URL = "/static/swagger.json"
@@ -57,9 +59,10 @@ def upload():
 
 
 def save_file_to_s3(filepath, filename):
+    """save file to aws s3 bucket"""
     session = boto3.Session(profile_name="csloginstudent")
-    s3 = session.client("s3")
-    s3.upload_file(filepath, const.S3_BUCKET_NAME, filename)
+    s3bucket = session.client("s3")
+    s3bucket.upload_file(filepath, const.S3_BUCKET_NAME, filename)
 
 
 def generate_metadata(filepath):
@@ -78,6 +81,7 @@ def generate_metadata(filepath):
 
 
 def generate_rekognition(filepath, metadata):
+    """detect objects in images using aws rekognition"""
     session = boto3.Session(profile_name="csloginstudent")
     rekognition = session.client("rekognition")
     with open(filepath, "rb") as image:

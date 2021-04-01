@@ -22,4 +22,4 @@ const.ERROR_MESSAGE_NO_FILE = "Sorry, no file is uploaded. "
 const.ERROR_MESSAGE_EXTENSION_NOT_ALLOWED = (
     "Sorry, the extension of your file is not allowed in this app."
 )
-const.S3_BUCKET_NAME="mjy-fil-rouge"
+const.S3_BUCKET_NAME = "mjy-fil-rouge"
