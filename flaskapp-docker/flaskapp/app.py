@@ -28,7 +28,7 @@ def send_static(path):
 
 
 SWAGGER_URL = "/swagger"
-API_URL = "/static/swagger.json"
+API_URL = "/static/swagger1.json"
 swaggerui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL, API_URL, config={"app_name": "fil-rouge-jma"}
 )
